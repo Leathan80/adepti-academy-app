@@ -106,21 +106,44 @@ class AppUpdateChecker(private val activity: MainActivity) {
     }
 
     private fun awaitDownload(id: Long) {
+        /* Op de applicatiecontext registreren, niet op de Activity: een download
+           kan langer duren dan het scherm leeft, en anders houdt de ontvanger de
+           Activity in leven zolang hij wacht. */
+        val app = activity.applicationContext
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 if (intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1) != id) return
-                runCatching { activity.unregisterReceiver(this) }
-                openInstaller()
+                runCatching { app.unregisterReceiver(this) }
+                if (downloadSucceeded(id)) {
+                    openInstaller()
+                } else {
+                    Toast.makeText(app, R.string.update_failed, Toast.LENGTH_LONG).show()
+                }
             }
         }
         /* Dit is een systeembroadcast, dus hij moet als geëxporteerd worden
            geregistreerd — anders komt hij op Android 14+ nooit aan. */
         ContextCompat.registerReceiver(
-            activity,
+            app,
             receiver,
             IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
             ContextCompat.RECEIVER_EXPORTED
         )
+    }
+
+    /**
+     * De broadcast komt ook binnen als de download is mislukt of afgebroken.
+     * Zonder deze controle zouden we het installatiescherm openen op een half
+     * of leeg bestand, wat een verwarrende fout van Android oplevert in plaats
+     * van een begrijpelijke melding.
+     */
+    private fun downloadSucceeded(id: Long): Boolean {
+        val dm = activity.getSystemService(DownloadManager::class.java) ?: return false
+        return dm.query(DownloadManager.Query().setFilterById(id))?.use { c ->
+            if (!c.moveToFirst()) return false
+            val col = c.getColumnIndex(DownloadManager.COLUMN_STATUS)
+            col >= 0 && c.getInt(col) == DownloadManager.STATUS_SUCCESSFUL
+        } ?: false
     }
 
     private fun openInstaller() {

@@ -11,8 +11,8 @@ android {
         applicationId = "nl.adepti.academy"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
     }
 
     /* De bundel is al geoptimaliseerd door build-bundle.mjs; nog eens
