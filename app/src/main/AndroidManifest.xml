@@ -6,6 +6,11 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!-- Nodig om een nieuwe versie van de app te kunnen aanbieden. De app
+         installeert nooit uit zichzelf: Android toont altijd zijn eigen
+         installatiescherm, en de gebruiker bevestigt daar. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
     <!-- Nodig om te kunnen zien of er een browser is voor de Custom Tab -->
     <queries>
         <intent>
@@ -33,5 +38,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Geeft het installatiescherm van Android toegang tot de gedownloade
+             APK. Niet geëxporteerd: alleen wie een expliciete leesrechten-vlag
+             meekrijgt mag erbij, en dat is precies één bestand. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 </manifest>

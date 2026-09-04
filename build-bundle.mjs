@@ -370,10 +370,42 @@ function checkJs() {
   console.log(`  syntax    ${js.length} JS-bestanden gecontroleerd`);
 }
 
+/* ---------- versiegegevens voor de in-app updatecontrole ---------- */
+
+/* De app vergelijkt zijn eigen versionCode met wat hier gepubliceerd wordt.
+   Eén bron van waarheid: het versienummer staat in app/build.gradle.kts en
+   wordt hier uitgelezen, zodat dit bestand nooit uit de pas kan lopen met de
+   APK die je bouwt. De APK zelf staat op GitHub — Firebase Hosting weigert
+   uitvoerbare bestanden op het Spark-plan. */
+const APK_URL =
+  "https://github.com/Leathan80/adepti-academy-app/releases/latest/download/adepti-academy.apk";
+
+function readAppVersion() {
+  const gradle = fs.readFileSync(path.join(HERE, "app", "build.gradle.kts"), "utf8");
+  const code = gradle.match(/versionCode\s*=\s*(\d+)/);
+  const name = gradle.match(/versionName\s*=\s*"([^"]+)"/);
+  if (!code || !name) {
+    throw new Error("versionCode/versionName niet gevonden in app/build.gradle.kts");
+  }
+  return { versionCode: Number(code[1]), versionName: name[1] };
+}
+
+function writeVersionFile() {
+  const v = readAppVersion();
+  const notesPath = path.join(HERE, "release-notes.txt");
+  const notes = fs.existsSync(notesPath) ? fs.readFileSync(notesPath, "utf8").trim() : "";
+  write(
+    path.join(SITES_ROOT, "Adepti", "app-version.json"),
+    JSON.stringify({ ...v, url: APK_URL, notes }, null, 2)
+  );
+  console.log("  versie    " + v.versionName + " (code " + v.versionCode + ") naar app-version.json");
+}
+
 /* ---------- publiceren ---------- */
 
 function publish() {
   console.log("\nPubliceren naar Firebase Hosting…");
+  writeVersionFile();
   rmrf(PUBLISH_DIR);
   for (const abs of walk(WWW).concat([path.join(WWW, "manifest.json")])) {
     const rel = path.relative(WWW, abs);

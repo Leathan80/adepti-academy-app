@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  De enige map die de app via een FileProvider deelt: waar de gedownloade
+  APK landt. Android weigert een installatie te starten vanaf een kaal
+  file://-pad, dus die ene map moet als content-URI beschikbaar zijn.
+-->
+<paths>
+    <external-files-path
+        name="updates"
+        path="Download/" />
+</paths>

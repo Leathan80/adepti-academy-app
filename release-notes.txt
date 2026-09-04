@@ -1,0 +1,5 @@
+The system bars no longer overlap the page: the clock, battery indicator and
+navigation buttons stay clear, and the edges take on the colour of whichever
+site you are reading.
+
+The app now also checks for new versions by itself.

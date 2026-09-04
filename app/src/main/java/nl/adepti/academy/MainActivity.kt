@@ -96,6 +96,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         checkForContentUpdate()
+        checkForAppUpdate()
     }
 
     /**
@@ -173,6 +174,22 @@ class MainActivity : AppCompatActivity() {
                 /* Niet midden in een pagina omschakelen: de nieuwe bestanden
                    worden vanzelf gebruikt bij de volgende navigatie. */
             }
+        }
+    }
+
+    /**
+     * Kijkt of er een nieuwe versie van de app-schil is.
+     *
+     * Anders dan de lesstof kan dit niet stil: Android laat geen app zichzelf
+     * ongevraagd vervangen. De gebruiker krijgt dus een vraag. Dat gebeurt
+     * zelden, want gewone inhoudswijzigingen komen via checkForContentUpdate
+     * binnen zonder dat er iets geïnstalleerd hoeft te worden.
+     */
+    private fun checkForAppUpdate() {
+        val checker = AppUpdateChecker(this)
+        lifecycleScope.launch {
+            val release = withContext(Dispatchers.IO) { checker.fetchIfNewer() } ?: return@launch
+            if (!isFinishing) checker.promptForInstall(release)
         }
     }
 

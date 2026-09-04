@@ -2,7 +2,21 @@
 <resources>
     <string name="app_name">Adepti Academy</string>
 
+    <!-- Lesstof-updates: gaan vanzelf, de gebruiker hoeft niets te doen -->
     <!-- %1$d = aantal bijgewerkte bestanden -->
     <string name="content_updated">Content updated (%1$d files)</string>
+
     <string name="no_browser">No browser available to open this link.</string>
+
+    <!-- App-updates: hiervoor moet de gebruiker wel bevestigen -->
+    <string name="update_available_title">A new version is available</string>
+    <!-- %1$s = versienummer, bijvoorbeeld 1.1 -->
+    <string name="update_available_body">Version %1$s of the app can be installed. Your progress and downloaded course material are kept.</string>
+    <string name="update_install">Update</string>
+    <string name="update_later">Later</string>
+    <!-- %1$s = versienummer -->
+    <string name="update_downloading">Downloading version %1$s</string>
+    <string name="update_downloading_toast">Downloading in the background…</string>
+    <string name="update_failed">The download did not complete. Please try again later.</string>
+    <string name="update_needs_permission">Android needs your permission to install app updates. Enable it on the next screen, then tap Update again.</string>
 </resources>
