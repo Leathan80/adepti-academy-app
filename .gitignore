@@ -1,0 +1,16 @@
+# Gebouwde bundel: wordt gegenereerd door build-bundle.mjs
+app/src/main/assets/www/
+
+# Gradle en Android
+.gradle/
+build/
+app/release/
+local.properties
+*.apk
+*.keystore
+*.jks
+
+# Android Studio
+.idea/
+.kotlin/
+captures/

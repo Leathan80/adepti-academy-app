@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Overgenomen uit de Adepti-hub (Adepti/index.html) -->
+    <color name="adepti_navy">#0B1220</color>
+    <color name="adepti_navy_dark">#070C16</color>
+    <color name="adepti_gold">#C9A44C</color>
+</resources>

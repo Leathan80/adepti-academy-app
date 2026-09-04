@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Adepti Academy</string>
+
+    <!-- %1$d = aantal bijgewerkte bestanden -->
+    <string name="content_updated">Content updated (%1$d files)</string>
+    <string name="no_browser">No browser available to open this link.</string>
+</resources>

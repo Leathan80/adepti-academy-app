@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Geen actionbar: de sites hebben hun eigen kop. Statusbalk in het
+         navy van de hub, zodat de app als één geheel oogt. -->
+    <style name="Theme.Adepti" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:statusBarColor">@color/adepti_navy_dark</item>
+        <item name="android:navigationBarColor">@color/adepti_navy_dark</item>
+        <item name="android:windowBackground">@color/adepti_navy</item>
+    </style>
+</resources>

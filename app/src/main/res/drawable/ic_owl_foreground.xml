@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vereenvoudigde uilenkop, afgeleid van het Adepti-embleem.
+
+  Het volledige logo is een cirkelvormig embleem met een tekstring; dat
+  wordt onleesbaar op 48dp. Wat op klein formaat overblijft, zijn de
+  oorpluimen en de grote ronde ogen — dus daar is dit merk op teruggebracht.
+
+  Twee dingen die uit het uitproberen bleken en dus niet zomaar aan te
+  passen zijn: de pluimen horen aan de búitenrand met een vlakke kop
+  ertussen (een diepe V ertussen leest als kattenoren), en de ogen moeten
+  groot en dicht bij elkaar staan. De inhoud blijft binnen de veilige zone
+  (het middelste 72x72-vlak), zodat geen enkel maskervorm er iets afsnijdt.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Kop met oorpluimen aan de buitenrand -->
+    <path
+        android:fillColor="#C9A44C"
+        android:pathData="M29,52 C29,45 31,41 34,38 L32,26 L44,36 C47,34.5 61,34.5 64,36 L76,26 L74,38 C77,41 79,45 79,52 C79,72 68,84 54,84 C40,84 29,72 29,52 Z" />
+
+    <!-- Ogen, uitgespaard in de achtergrondkleur -->
+    <path
+        android:fillColor="#0B1220"
+        android:pathData="M44,55 m-10,0 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0" />
+    <path
+        android:fillColor="#0B1220"
+        android:pathData="M64,55 m-10,0 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0" />
+
+    <!-- Pupillen, zodat de blik terugkomt -->
+    <path
+        android:fillColor="#C9A44C"
+        android:pathData="M44,55 m-3.8,0 a3.8,3.8 0 1,0 7.6,0 a3.8,3.8 0 1,0 -7.6,0" />
+    <path
+        android:fillColor="#C9A44C"
+        android:pathData="M64,55 m-3.8,0 a3.8,3.8 0 1,0 7.6,0 a3.8,3.8 0 1,0 -7.6,0" />
+</vector>

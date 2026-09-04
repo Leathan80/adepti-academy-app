@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Terugval voor Android 7 (API 24-25), waar adaptive icons nog niet
+  bestaan. Vanaf API 26 wint mipmap-anydpi-v26/ic_launcher.xml.
+
+  Hier zit de maskervorm — een afgeronde vierkant — in de tekening zelf,
+  omdat het systeem die op deze versies niet toepast. De uil is iets
+  kleiner geschaald zodat hij binnen de afronding blijft.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Achtergrond met afgeronde hoeken -->
+    <path
+        android:fillColor="#0B1220"
+        android:pathData="M22,4 L86,4 C96,4 104,12 104,22 L104,86 C104,96 96,104 86,104 L22,104 C12,104 4,96 4,86 L4,22 C4,12 12,4 22,4 Z" />
+
+    <group
+        android:pivotX="54"
+        android:pivotY="55"
+        android:scaleX="0.86"
+        android:scaleY="0.86">
+        <path
+            android:fillColor="#C9A44C"
+            android:pathData="M29,52 C29,45 31,41 34,38 L32,26 L44,36 C47,34.5 61,34.5 64,36 L76,26 L74,38 C77,41 79,45 79,52 C79,72 68,84 54,84 C40,84 29,72 29,52 Z" />
+        <path
+            android:fillColor="#0B1220"
+            android:pathData="M44,55 m-10,0 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0" />
+        <path
+            android:fillColor="#0B1220"
+            android:pathData="M64,55 m-10,0 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0" />
+        <path
+            android:fillColor="#C9A44C"
+            android:pathData="M44,55 m-3.8,0 a3.8,3.8 0 1,0 7.6,0 a3.8,3.8 0 1,0 -7.6,0" />
+        <path
+            android:fillColor="#C9A44C"
+            android:pathData="M64,55 m-3.8,0 a3.8,3.8 0 1,0 7.6,0 a3.8,3.8 0 1,0 -7.6,0" />
+    </group>
+</vector>
