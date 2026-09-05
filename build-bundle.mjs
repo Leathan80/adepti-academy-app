@@ -159,6 +159,67 @@ function stripBeacon(html) {
   );
 }
 
+/* De webapp-laag: manifest, iconen en de service worker aanmelden.
+ *
+ * Hiermee is de gepubliceerde bundel op the-adepti.web.app/app-content/ niet
+ * alleen een site maar een installeerbare app — de weg naar de iPhone, waar
+ * een APK niet bestaat. Op Android verandert er niets: daar serveert de
+ * WebView de bundel al lokaal, dus het script houdt zichzelf tegen.
+ *
+ * Bewust géén viewport-fit=cover en géén black-translucent statusbalk. Die
+ * combinatie legt de balk óver de pagina — precies de fout die in de
+ * Android-app met applySystemBarInsets() is rechtgezet. De standaardbalk is
+ * ondoorzichtig en laat dus niets te repareren over; dat is de verstandige
+ * keuze op een platform dat hier niet te testen is.
+ */
+function injectPwa(html, depth) {
+  const up = "../".repeat(depth);
+  if (!html.includes("</head>")) {
+    throw new Error("Pagina zonder </head>: de webapp-laag kan er niet in. Controleer de bron.");
+  }
+  return html.replace(
+    "</head>",
+    `  <link rel="manifest" href="${up}app.webmanifest">
+  <link rel="apple-touch-icon" href="${up}icons/apple-touch-icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Adepti">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0a0f1c">
+  <script>
+  (function () {
+    if (!("serviceWorker" in navigator) || !window.caches) return;
+    // In de Android-app serveert de WebView de bundel al vanaf schijf; een
+    // service worker zou daar een tweede kopie naast leggen.
+    if (location.hostname === "appassets.androidplatform.net") return;
+
+    // Noodknop. Loopt de cache vast, dan zet ?reset=1 achter de URL alles terug
+    // naar nul. Zonder Apple-toestel om mee te debuggen is dit geen luxe.
+    if (/[?&]reset=1(&|$)/.test(location.search)) {
+      Promise.all([
+        navigator.serviceWorker.getRegistrations().then(function (rs) {
+          return Promise.all(rs.map(function (r) { return r.unregister(); }));
+        }),
+        caches.keys().then(function (ks) {
+          return Promise.all(ks.map(function (k) { return caches.delete(k); }));
+        })
+      ]).then(function () { location.replace(location.pathname); });
+      return;
+    }
+
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("${up}sw.js").then(function (reg) {
+        // Vraag om een controle op nieuwe lesstof. Lukt dat niet, dan draait de
+        // app door op wat er al staat en merkt de gebruiker er niets van.
+        var sw = reg.active || navigator.serviceWorker.controller;
+        if (sw) sw.postMessage({ type: "sync" });
+      }).catch(function () {});
+    });
+  })();
+  </script>
+</head>`
+  );
+}
+
 /* EW laadt zijn talenlijst normaal via fetch("content/langs.json").
    Door EW_AVAILABLE vooraf te zetten wordt die fetch overgeslagen.
 
@@ -297,6 +358,7 @@ function build() {
         let html = data.toString("utf8");
         html = stripBeacon(html);
         html = localiseFonts(html, depth);
+        html = injectPwa(html, depth);
         if (site.prune === "ew") html = pinEwLanguages(html);
         data = Buffer.from(relinkInternal(html), "utf8");
       } else if (ext === ".js") {

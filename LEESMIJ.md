@@ -75,6 +75,25 @@ ADEPTI_KEY_PASSWORD=...
 Zonder deze regels bouwt `assembleRelease` een niet-ondertekende APK — bruikbaar
 om te testen, niet om te verspreiden.
 
+Deze regels **staan sinds 4 september 2026 ingevuld**, dus ondertekenen gebeurt
+nu vanaf de opdrachtregel; Android Studio is er niet meer voor nodig. Let op de
+JVM: Gradle 8.9 accepteert hoogstens Java 22, terwijl Studio JDK 25 meelevert.
+Bouw daarom met de meegeleverde 21:
+
+```bash
+JAVA_HOME="$HOME/.jdks/jbr-21.0.11" ./gradlew assembleRelease
+```
+
+Controleer bij twijfel dat de handtekening nog dezelfde is als die van de
+gepubliceerde versie — wijkt hij af, dan weigert het toestel de update:
+
+```bash
+apksigner verify --print-certs app/build/outputs/apk/release/app-release.apk
+```
+
+De vingerafdruk hoort `5dffd99d4aa921750afcd6eeea00c5d845c7789529f1e82077bd0eb6ebdcb7fd`
+te zijn (CN=The Adepti).
+
 ---
 
 ## Content bijwerken
@@ -97,6 +116,10 @@ volledig intact.
 
 **Draai dit na elke inhoudelijke wijziging aan een academie.** Deploy je alleen
 de website zelf, dan blijft de app op de oude lesstof staan.
+
+Datzelfde commando werkt ook de webapp bij (zie hieronder): de service worker
+leest hetzelfde `manifest.json` en haalt op dezelfde manier alleen het verschil
+op. Eén publicatie, beide platformen.
 
 Alleen bij wijzigingen aan de app-schil (nieuwe academie, native functionaliteit)
 is een nieuwe APK nodig.
@@ -150,6 +173,83 @@ De webbronnen zelf blijven onaangeroerd; alle aanpassingen gebeuren op de kopie:
 
 Het script controleert ook of elke academie nog op Engels als standaardtaal
 staat, en weigert te bouwen als de bundel boven 25 MB uitkomt.
+
+---
+
+## De webapp (iPhone, iPad, desktop)
+
+Op iOS bestaat geen APK en geen zelf verspreiden: Apples webdistributie in de
+EU stelt eisen die dit project niet haalt, dus native zou App Store betekenen -
+99 euro per jaar en een reeel risico op afwijzing onder richtlijn 4.2, want een
+WebView om een website heen is precies wat Apple daarmee weert.
+
+De uitweg was er al. De gepubliceerde bundel op
+`the-adepti.web.app/app-content/` is een complete site op een enkel domein, met
+de kruisverwijzingen al omgeschreven. Daar hoefde alleen een service worker en
+een webmanifest bij om er een installeerbare app van te maken. Kort adres:
+**`adepti-academy.nl/app`**.
+
+Wat de gebruiker daarmee wint boven de gewone site:
+
+- **Offline**, net als de Android-app.
+- **Voortgang blijft staan.** Safari wist de opslag van een gewone website na
+  zeven dagen zonder bezoek. Een app op het beginscherm valt buiten die regel -
+  voor een leeromgeving het zwaarste argument.
+- **Opent schermvullend**, met eigen pictogram.
+
+### Hoe het werkt
+
+`overlay/sw.js` is de JavaScript-versie van `UpdateManager.kt`: hij leest
+`manifest.json`, cachet alle bestanden, en vergelijkt bij elke start de SHA-256
+per bestand om alleen het verschil op te halen. De cachenaam is bewust vast -
+weggooien en opnieuw vullen zou elke gebruiker 14 MB kosten voor een gewijzigde
+regel lesstof.
+
+`injectPwa()` in `build-bundle.mjs` zet in elke pagina het manifest, de iconen
+en het registratiescript. Dat script houdt zichzelf tegen zodra
+`location.hostname` gelijk is aan `appassets.androidplatform.net`: in de
+Android-app serveert de WebView de bundel al vanaf schijf, en een tweede kopie
+in een service worker heeft daar geen functie.
+
+### Noodknop
+
+Loopt de cache vast, dan wist **`?reset=1`** achter de URL alles - registraties
+en caches - en bouwt de app zichzelf opnieuw op. Er is geen Apple-toestel om
+mee te debuggen, dus dit is geen luxe.
+
+### Cachekoppen
+
+`Adepti/firebase.json` zet HTML, `sw.js` en `app.webmanifest` op `no-cache`; de
+rest van `/app-content/` houdt de jaarcache. Die combinatie is nodig omdat
+dezelfde map twee klanten bedient: de Android-app controleert elk bestand op
+SHA-256 en heeft aan een jaar cache genoeg, maar een browser zou zonder deze
+uitzonderingen een jaar op dezelfde `index.html` kunnen blijven hangen. **De
+volgorde is dragend** - Firebase laat de laatst passende regel winnen.
+
+### Iconen
+
+`make-icons.py` maakt de vier iconen uit `Adepti/assets/logo.png`. Draai dat
+alleen opnieuw als het logo verandert; de uitkomst staat in `overlay/icons/`.
+Twee dingen zitten er bewust in: het palet van 64 kleuren (het logo heeft
+filmkorrel, en ruis comprimeert niet - op volle kleurdiepte kostte het
+512-icoon alleen al bijna een halve megabyte), en het uitknippen van de gouden
+cirkel voor de maskable variant, omdat het hele vierkant inplakken een zichtbaar
+vierkant-in-een-vierkant gaf.
+
+### Wat niet getest is
+
+Safari draait niet op Windows. De service worker is volledig getest in Chromium
+- installatie, offline navigatie, de hash-diff, de noodknop - maar niet op een
+echt Apple-toestel. Vandaar: alleen breed ondersteunde API's, geen
+slimmigheden, en de noodknop. Bewust weggelaten zijn
+`apple-mobile-web-app-status-bar-style: black-translucent` en
+`viewport-fit=cover`: die leggen de statusbalk over de pagina heen, precies de
+fout die op Android met `applySystemBarInsets()` is rechtgezet, en dat wil je
+niet blind invoeren.
+
+Ligt er ooit vijf minuten een iPhone: installeren via Deel > Zet op
+beginscherm, vliegtuigstand aan, twee academies openen, taal wisselen naar
+Nederlands, afsluiten en opnieuw starten.
 
 ---
 

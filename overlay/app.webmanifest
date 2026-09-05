@@ -1,0 +1,19 @@
+{
+  "name": "The Adepti",
+  "short_name": "Adepti",
+  "description": "Electronic warfare, intelligence, air defense and drones - four learning environments, offline.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "./hub/index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#0a0f1c",
+  "background_color": "#0a0f1c",
+  "categories": ["education", "reference"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
