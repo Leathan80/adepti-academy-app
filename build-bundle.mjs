@@ -66,12 +66,26 @@ function HUB_FILES(dir) {
     .concat(walk(path.join(dir, "assets")));
 }
 
+/* "h" en de SEO-bestanden hieronder zijn er alleen voor zoekmachines
+   (gegenereerd door shared/seo.mjs, sept 2026): statische hoofdstukpagina's,
+   robots.txt, sitemap.xml en het verificatiebestand van Google Search Console.
+   In een offline app hebben ze geen functie, en dat laatste is een .html
+   zonder <head>, waar injectPwa() terecht op stopt. */
 const SKIP_DIRS = new Set([
   "media", "translate", "standalone", "node_modules", ".git", ".firebase",
-  "forum", "tools", "docs", "app-content", ".claude",
+  "forum", "tools", "docs", "app-content", ".claude", "h",
 ]);
 const SKIP_EXT = new Set([".md", ".zip", ".log", ".ps1", ".sh"]);
-const SKIP_FILES = new Set(["firebase.json", ".firebaserc", "package.json", "package-lock.json"]);
+const SKIP_FILES = new Set([
+  "firebase.json", ".firebaserc", "package.json", "package-lock.json",
+  "robots.txt", "sitemap.xml",
+  // Schrijft bij elke hoofdstukwissel het pad mee (/5.3#/5.3) voor de statistieken.
+  // Het schakelt zichzelf uit op file:// en onder /app-content/, maar de app laadt
+  // de bundel via https://appassets.androidplatform.net/ — daar zou het actief
+  // worden, en /5.3 bestaat in de bundel niet. Zie ook stripUrlSync().
+  "url-sync.js",
+]);
+const SKIP_PATTERN = /^google[0-9a-f]+\.html$/; // Search Console-verificatie
 
 /* ---------- kleine helpers ---------- */
 
@@ -84,6 +98,8 @@ function walk(dir, acc = []) {
     } else {
       if (SKIP_EXT.has(path.extname(e.name).toLowerCase())) continue;
       if (SKIP_FILES.has(e.name)) continue;
+      if (SKIP_PATTERN.test(e.name)) continue;
+      if (e.name.startsWith(".")) continue; // .gitignore e.d. (sinds de sites git-repo's zijn)
       acc.push(path.join(dir, e.name));
     }
   }
@@ -151,12 +167,31 @@ function localiseFonts(html, depth) {
 }
 
 /* Het Cloudflare-beacon heeft in een offline app geen functie en
-   levert alleen een mislukt verzoek op. */
+   levert alleen een mislukt verzoek op. De sites schrijven het niet overal
+   op dezelfde manier: met een blok "<!-- Cloudflare Web Analytics -->…
+   <!-- End … -->", of met alleen een uitlegcommentaar ervóór en geen
+   afsluiter. De oude versie ving alleen de eerste vorm, waardoor het beacon
+   sinds de analytics van sept 2026 ongemerkt in de bundel zou komen.
+   Daarom nu alle drie de stukken los, en een harde controle erna. */
 function stripBeacon(html) {
-  return html.replace(
-    /\s*<!-- Cloudflare Web Analytics[\s\S]*?<!-- End Cloudflare Web Analytics -->/,
-    ""
-  );
+  const uit = html
+    .replace(/\s*<!-- Cloudflare Web Analytics[\s\S]*?<!-- End Cloudflare Web Analytics -->/g, "")
+    .replace(/\s*<!-- Cloudflare Web Analytics[\s\S]*?-->/g, "")
+    .replace(/\s*<script[^>]*cloudflareinsights[^>]*><\/script>/g, "");
+  if (uit.includes("cloudflareinsights")) {
+    throw new Error("Beacon niet volledig verwijderd: de offline bundel moet beacon-vrij zijn.");
+  }
+  return uit;
+}
+
+/* url-sync.js gaat niet mee (zie SKIP_FILES); de verwijzing ernaar moet er dan
+   ook uit, anders vraagt elke pagina om een bestand dat er niet is. */
+function stripUrlSync(html) {
+  const uit = html.replace(/\s*<script[^>]*src="js\/url-sync\.js"[^>]*><\/script>/g, "");
+  if (uit.includes("url-sync.js")) {
+    throw new Error("Verwijzing naar url-sync.js niet verwijderd: die hoort niet in de offline bundel.");
+  }
+  return uit;
 }
 
 /* De webapp-laag: manifest, iconen en de service worker aanmelden.
@@ -357,6 +392,7 @@ function build() {
         const depth = rel.split(/[\\/]/).length; // www/<site>/<rel> → naar www/
         let html = data.toString("utf8");
         html = stripBeacon(html);
+        html = stripUrlSync(html);
         html = localiseFonts(html, depth);
         html = injectPwa(html, depth);
         if (site.prune === "ew") html = pinEwLanguages(html);
