@@ -54,7 +54,16 @@ const SITES = [
   { id: "intel",   from: "intel-academy" },
   { id: "vks",     from: "VKS-leeromgeving" },
   { id: "drone",   from: "drone-academy" },
+  // Spectrum, het kaartspel (hub-tegel op academy.html). Alleen wat het spel draait:
+  // geen tests, geen bouwscripts en geen bron-JSON — alles zit in data/spectrum-data.js.
+  { id: "spectrum", from: path.join("Adepti", "games", "spectrum"), skip: SPECTRUM_SKIP },
 ];
+
+function SPECTRUM_SKIP(rel) {
+  const p = rel.split(/[\\/]/);
+  if (p[0] === "test" || p[0] === "build") return true;
+  return p[0] === "data" && rel.endsWith(".json");
+}
 
 /* De hub is een gedeelde map met het forum en de tools erin; we
    nemen alleen de pagina's die de app echt gebruikt. Het forum
@@ -293,15 +302,28 @@ const LINK_MAP = {
 /* Alle sites zitten op www/<site>/, dus "../<site>/index.html" klopt vanuit
    elk van hen. Ook vanuit de lesstof-JS: relatieve URL's in een href worden
    opgelost tegen het dócument, niet tegen het scriptbestand. */
+/* Een URL naar een bestand op een academie (een foto: …web.app/img/threats/x.jpg) is geen
+   link naar die academie. Media zitten niet in de bundel, dus zo'n URL blijft absoluut:
+   online laadt hij, offline niet (Spectrum laat een foto die niet laadt dan weg). */
+const BESTAND = /^[\w\-./]*\.(?:jpe?g|png|webp|gif|svg|mp4|mp3|webm|ogg|json|js|css|pdf)\b/i;
+
 function relinkInternal(text) {
   for (const [from, to] of Object.entries(LINK_MAP)) {
     // eerst de diepe vorm (…web.app/#/5.12), anders blijft "/#/" hangen
     text = text.split(`${from}/#/`).join(`${to}#/`);
-    text = text.split(`${from}/`).join(to);
-    text = text.split(from).join(to);
+    text = text
+      .split(`${from}/`)
+      .map((deel, i) => (i === 0 ? deel : (BESTAND.test(deel) ? `${from}/` : to) + deel))
+      .join("");
+    // de kale vorm, maar niet als hij het begin is van een URL die we net lieten staan
+    text = text.replace(new RegExp(from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?!/)", "g"), to);
   }
   // tools.html verwijst naar de scenario-creator, die naast de hub staat
   text = text.split('"tools/scenario-creator/"').join('"../scenario/index.html"');
+  // academy.html verwijst naar Spectrum, dat in de bundel als eigen map naast de hub staat
+  text = text.split('"games/spectrum/"').join('"../spectrum/index.html"');
+  // en Spectrum zelf haalt het Adepti-logo uit de hub
+  text = text.split('"../../assets/logo.png"').join('"../hub/assets/logo.png"');
 
   /* target="_blank" moet eraf op alles wat nu binnen de bundel wijst. Een
      WebView opent uit zichzelf geen nieuw venster; zonder deze stap doet een
@@ -313,6 +335,18 @@ function relinkInternal(text) {
     /<a([^>]*\bhref="\.\.\/[^"]*"[^>]*)>/g,
     (m, attrs) => `<a${attrs.replace(/\s*target="_blank"/, "").replace(/\s*rel="noopener"/, "")}>`
   );
+}
+
+/* Spectrum toont foto's van de academies (…web.app/img/…). Staat die foto ook in
+   de bundel (de academies worden vóór Spectrum gebouwd), dan de lokale kopie:
+   zo werkt het spel offline mét beeld. Anders blijft de URL absoluut. */
+const FOTO_SITE = { "airdefense-academy.web.app": "vks", "drone-academy.web.app": "drone", "intel-academy.web.app": "intel", "ew-academy.web.app": "ew" };
+
+function lokaleFotos(text) {
+  return text.replace(/https:\/\/([a-z-]+\.web\.app)\/(img\/[\w\-./]+)/g, (m, host, p) => {
+    const id = FOTO_SITE[host];
+    return id && fs.existsSync(path.join(WWW, id, p)) ? `../${id}/${p}` : m;
+  });
 }
 
 /* De mediadetectie van EW probeert per hoofdstuk vijf audio- en vier
@@ -376,6 +410,7 @@ function build() {
 
     for (const abs of files) {
       const rel = path.relative(src, abs);
+      if (site.skip && site.skip(rel)) continue;
 
       // EW: alleen het Engelse taalpak, de overige 18 vallen af.
       if (site.prune === "ew" && /^content[\\/]lang-/.test(rel) && rel !== path.join("content", "lang-en.js")) continue;
@@ -400,6 +435,7 @@ function build() {
       } else if (ext === ".js") {
         // kruisverwijzingen in de lesstof wijzen ook naar de andere academies
         data = Buffer.from(relinkInternal(data.toString("utf8")), "utf8");
+        if (site.id === "spectrum") data = Buffer.from(lokaleFotos(data.toString("utf8")), "utf8");
       }
 
       const outRel = posix(path.join(site.id, rel));
