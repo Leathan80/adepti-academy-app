@@ -77,7 +77,7 @@ function HUB_FILES(dir) {
 
 /* "h" en de SEO-bestanden hieronder zijn er alleen voor zoekmachines
    (gegenereerd door shared/seo.mjs, sept 2026): statische hoofdstukpagina's,
-   robots.txt, sitemap.xml en het verificatiebestand van Google Search Console.
+   robots.txt, de sitemaps en het verificatiebestand van Google Search Console.
    In een offline app hebben ze geen functie, en dat laatste is een .html
    zonder <head>, waar injectPwa() terecht op stopt. */
 const SKIP_DIRS = new Set([
@@ -87,7 +87,7 @@ const SKIP_DIRS = new Set([
 const SKIP_EXT = new Set([".md", ".zip", ".log", ".ps1", ".sh"]);
 const SKIP_FILES = new Set([
   "firebase.json", ".firebaserc", "package.json", "package-lock.json",
-  "robots.txt", "sitemap.xml",
+  "robots.txt",
   // Schrijft bij elke hoofdstukwissel het pad mee (/5.3#/5.3) voor de statistieken.
   // Het schakelt zichzelf uit op file:// en onder /app-content/, maar de app laadt
   // de bundel via https://appassets.androidplatform.net/ — daar zou het actief
@@ -95,6 +95,10 @@ const SKIP_FILES = new Set([
   "url-sync.js",
 ]);
 const SKIP_PATTERN = /^google[0-9a-f]+\.html$/; // Search Console-verificatie
+// Elke sitemap, niet alleen sitemap.xml: er kwamen er in okt 2026 meer bij
+// (sitemap_index.xml, en op de tracker sitemap-dossiers.xml). Met een losse
+// naam in SKIP_FILES lekt de volgende die erbij komt opnieuw de bundel in.
+const SKIP_SITEMAP = /^sitemap[-_a-z0-9]*\.xml$/i;
 
 /* ---------- kleine helpers ---------- */
 
@@ -108,6 +112,7 @@ function walk(dir, acc = []) {
       if (SKIP_EXT.has(path.extname(e.name).toLowerCase())) continue;
       if (SKIP_FILES.has(e.name)) continue;
       if (SKIP_PATTERN.test(e.name)) continue;
+      if (SKIP_SITEMAP.test(e.name)) continue;
       if (e.name.startsWith(".")) continue; // .gitignore e.d. (sinds de sites git-repo's zijn)
       acc.push(path.join(dir, e.name));
     }
