@@ -327,6 +327,8 @@ function relinkInternal(text) {
   text = text.split('"tools/scenario-creator/"').join('"../scenario/index.html"');
   // index.html verwijst naar Spectrum, dat in de bundel als eigen map naast de hub staat
   text = text.split('"games/spectrum/"').join('"../spectrum/index.html"');
+  // de Threat Library zit niet in de bundel (145 pagina's + live nieuws): de tegel opent de site
+  text = text.split('"threats/"').join('"https://adepti-academy.nl/threats/"');
   // en Spectrum zelf haalt het Adepti-logo uit de hub
   text = text.split('"../../assets/logo.png"').join('"../hub/assets/logo.png"');
 
