@@ -54,7 +54,7 @@ const SITES = [
   { id: "intel",   from: "intel-academy" },
   { id: "vks",     from: "VKS-leeromgeving" },
   { id: "drone",   from: "drone-academy" },
-  // Spectrum, het kaartspel (hub-tegel op academy.html). Alleen wat het spel draait:
+  // Spectrum, het kaartspel (hub-tegel op index.html). Alleen wat het spel draait:
   // geen tests, geen bouwscripts en geen bron-JSON — alles zit in data/spectrum-data.js.
   { id: "spectrum", from: path.join("Adepti", "games", "spectrum"), skip: SPECTRUM_SKIP },
 ];
@@ -325,7 +325,7 @@ function relinkInternal(text) {
   }
   // tools.html verwijst naar de scenario-creator, die naast de hub staat
   text = text.split('"tools/scenario-creator/"').join('"../scenario/index.html"');
-  // academy.html verwijst naar Spectrum, dat in de bundel als eigen map naast de hub staat
+  // index.html verwijst naar Spectrum, dat in de bundel als eigen map naast de hub staat
   text = text.split('"games/spectrum/"').join('"../spectrum/index.html"');
   // en Spectrum zelf haalt het Adepti-logo uit de hub
   text = text.split('"../../assets/logo.png"').join('"../hub/assets/logo.png"');
