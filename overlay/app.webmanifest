@@ -1,7 +1,7 @@
 {
   "name": "The Adepti",
   "short_name": "Adepti",
-  "description": "Electronic warfare, intelligence, air defense and drones - four learning environments, offline.",
+  "description": "Electronic warfare, intelligence, air defense, drones and space - five learning environments, offline.",
   "lang": "en",
   "dir": "ltr",
   "start_url": "./hub/index.html",

@@ -54,6 +54,8 @@ const SITES = [
   { id: "intel",   from: "intel-academy" },
   { id: "vks",     from: "VKS-leeromgeving" },
   { id: "drone",   from: "drone-academy" },
+  // bron/ is de quizbron waaruit content/curriculum.js wordt gebouwd; de app heeft hem niet nodig.
+  { id: "space",   from: "space-academy",      skip: (rel) => rel.split(/[\\/]/)[0] === "bron" },
   // Spectrum, het kaartspel (hub-tegel op index.html). Alleen wat het spel draait:
   // geen tests, geen bouwscripts en geen bron-JSON — alles zit in data/spectrum-data.js.
   { id: "spectrum", from: path.join("Adepti", "games", "spectrum"), skip: SPECTRUM_SKIP },
@@ -302,6 +304,7 @@ const LINK_MAP = {
   "https://intel-academy.web.app": "../intel/index.html",
   "https://airdefense-academy.web.app": "../vks/index.html",
   "https://drone-academy.web.app": "../drone/index.html",
+  "https://adepti-space-academy.web.app": "../space/index.html",
 };
 
 /* Alle sites zitten op www/<site>/, dus "../<site>/index.html" klopt vanuit
@@ -347,7 +350,7 @@ function relinkInternal(text) {
 /* Spectrum toont foto's van de academies (…web.app/img/…). Staat die foto ook in
    de bundel (de academies worden vóór Spectrum gebouwd), dan de lokale kopie:
    zo werkt het spel offline mét beeld. Anders blijft de URL absoluut. */
-const FOTO_SITE = { "airdefense-academy.web.app": "vks", "drone-academy.web.app": "drone", "intel-academy.web.app": "intel", "ew-academy.web.app": "ew" };
+const FOTO_SITE = { "airdefense-academy.web.app": "vks", "drone-academy.web.app": "drone", "adepti-space-academy.web.app": "space", "intel-academy.web.app": "intel", "ew-academy.web.app": "ew" };
 
 function lokaleFotos(text) {
   return text.replace(/https:\/\/([a-z-]+\.web\.app)\/(img\/[\w\-./]+)/g, (m, host, p) => {
@@ -408,7 +411,7 @@ function build() {
     const src = path.isAbsolute(site.from) ? site.from : path.join(SITES_ROOT, site.from);
     if (!fs.existsSync(src)) throw new Error(`Bronmap ontbreekt: ${src}`);
 
-    if (site.prune === "ew" || ["intel", "vks", "drone"].includes(site.id)) {
+    if (site.prune === "ew" || ["intel", "vks", "drone", "space"].includes(site.id)) {
       assertEnglishDefault(src, site.id);
     }
 
