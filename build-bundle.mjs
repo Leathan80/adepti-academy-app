@@ -299,6 +299,11 @@ function pinEwLanguages(html) {
    De twee dashboards en de externe tools blijven wél absoluut: die worden live
    geladen respectievelijk door ExternalLinks in een Custom Tab geopend. */
 const LINK_MAP = {
+  "https://ew.adepti-academy.nl": "../ew/index.html",
+  "https://intel.adepti-academy.nl": "../intel/index.html",
+  "https://airdefense.adepti-academy.nl": "../vks/index.html",
+  "https://drone.adepti-academy.nl": "../drone/index.html",
+  "https://space.adepti-academy.nl": "../space/index.html",
   "https://ew-academy.web.app": "../ew/index.html",
   "https://ew-leeromgeving.web.app": "../ew/index.html",
   "https://intel-academy.web.app": "../intel/index.html",
@@ -350,7 +355,7 @@ function relinkInternal(text) {
 /* Spectrum toont foto's van de academies (…web.app/img/…). Staat die foto ook in
    de bundel (de academies worden vóór Spectrum gebouwd), dan de lokale kopie:
    zo werkt het spel offline mét beeld. Anders blijft de URL absoluut. */
-const FOTO_SITE = { "airdefense-academy.web.app": "vks", "drone-academy.web.app": "drone", "adepti-space-academy.web.app": "space", "intel-academy.web.app": "intel", "ew-academy.web.app": "ew" };
+const FOTO_SITE = { "airdefense.adepti-academy.nl": "vks", "drone.adepti-academy.nl": "drone", "space.adepti-academy.nl": "space", "intel.adepti-academy.nl": "intel", "ew.adepti-academy.nl": "ew", "airdefense-academy.web.app": "vks", "drone-academy.web.app": "drone", "adepti-space-academy.web.app": "space", "intel-academy.web.app": "intel", "ew-academy.web.app": "ew" };
 
 function lokaleFotos(text) {
   return text.replace(/https:\/\/([a-z-]+\.web\.app)\/(img\/[\w\-./]+)/g, (m, host, p) => {
