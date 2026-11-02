@@ -42,8 +42,12 @@ const PUBLISH_DIR = path.join(SITES_ROOT, "Adepti", "app-content");
 const PUBLISH = process.argv.includes("--publish");
 
 /* Harde bovengrens. Loopt de bundel hierboven, dan is er iets
-   binnengeslopen dat er niet hoort — meestal media of een taalpak. */
-const MAX_BUNDLE_MB = 25;
+   binnengeslopen dat er niet hoort — meestal media of een taalpak.
+   Was 25 MB; op 2026-11-02 kwam de bundel daar met gewone groei op uit
+   (vijf academies, ~150 kaartfoto's van gemiddeld 77 KB), dus verhoogd
+   naar 30 MB. Grootste uitschieters toen: hub/assets/logo.png (809 KB),
+   space/img/cards/beidou.jpg en yaogan.png (~600 KB elk). */
+const MAX_BUNDLE_MB = 30;
 
 /* ---------- welke sites gaan mee ---------- */
 
