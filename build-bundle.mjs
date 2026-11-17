@@ -54,7 +54,10 @@ const MAX_BUNDLE_MB = 30;
 const SITES = [
   { id: "hub",     from: "Adepti",             only: HUB_FILES },
   { id: "scenario", from: path.join("Adepti", "tools", "scenario-creator") },
-  { id: "ew",      from: "ew-leeromgeving",    prune: "ew" },
+  // Lesgeluid (26 MB, nov 2026) blijft buiten de app: de lessen werken daar als tekst + figuur
+  // (keuze gebruiker 2026-11-17). De speler toont dan "Audio is not available here".
+  { id: "ew",      from: "ew-leeromgeving",    prune: "ew",
+    skip: (rel) => /^content[\\/]lessons[\\/]audio([\\/]|$)/.test(rel) },
   { id: "intel",   from: "intel-academy" },
   { id: "vks",     from: "VKS-leeromgeving" },
   { id: "drone",   from: "drone-academy" },
@@ -113,6 +116,7 @@ function walk(dir, acc = []) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     if (e.isDirectory()) {
       if (SKIP_DIRS.has(e.name)) continue;
+      if (e.name.startsWith(".")) continue; // .ontwerp/ e.d.: werkmappen, geen siteinhoud
       walk(path.join(dir, e.name), acc);
     } else {
       if (SKIP_EXT.has(path.extname(e.name).toLowerCase())) continue;
