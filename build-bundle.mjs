@@ -326,7 +326,10 @@ const LINK_MAP = {
 /* Een URL naar een bestand op een academie (een foto: …web.app/img/threats/x.jpg) is geen
    link naar die academie. Media zitten niet in de bundel, dus zo'n URL blijft absoluut:
    online laadt hij, offline niet (Spectrum laat een foto die niet laadt dan weg). */
-const BESTAND = /^[\w\-./]*\.(?:jpe?g|png|webp|gif|svg|mp4|mp3|webm|ogg|json|js|css|pdf)\b/i;
+// Ook de map met EW-lesgeluid: js/lessons.js speelt dat in de app van de website (het zit niet in de
+// bundel) en bouwt het adres als ".../content/lessons/audio/<les>/" + bestand; zonder deze uitzondering
+// werd dat "index.htmlcontent/lessons/audio/..." (2026-11-17).
+const BESTAND = /^(?:[\w\-./]*\.(?:jpe?g|png|webp|gif|svg|mp4|mp3|webm|ogg|json|js|css|pdf)\b|content\/lessons\/audio\/)/i;
 
 function relinkInternal(text) {
   for (const [from, to] of Object.entries(LINK_MAP)) {
