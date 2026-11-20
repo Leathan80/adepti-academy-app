@@ -58,7 +58,9 @@ const SITES = [
   // (keuze gebruiker 2026-11-17). De speler toont dan "Audio is not available here".
   { id: "ew",      from: "ew-leeromgeving",    prune: "ew",
     skip: (rel) => /^content[\\/]lessons[\\/]audio([\\/]|$)/.test(rel) },
-  { id: "intel",   from: "intel-academy" },
+  // Ook bij Intel blijft het lesgeluid buiten de app; js/lessons.js speelt het van intel.adepti-academy.nl.
+  { id: "intel",   from: "intel-academy",
+    skip: (rel) => /^content[\\/]lessons[\\/]audio([\\/]|$)/.test(rel) },
   { id: "vks",     from: "VKS-leeromgeving" },
   { id: "drone",   from: "drone-academy" },
   // bron/ is de quizbron waaruit content/curriculum.js wordt gebouwd; de app heeft hem niet nodig.
