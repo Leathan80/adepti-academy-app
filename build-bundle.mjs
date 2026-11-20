@@ -64,7 +64,8 @@ const SITES = [
   { id: "vks",     from: "VKS-leeromgeving" },
   { id: "drone",   from: "drone-academy" },
   // bron/ is de quizbron waaruit content/curriculum.js wordt gebouwd; de app heeft hem niet nodig.
-  { id: "space",   from: "space-academy",      skip: (rel) => rel.split(/[\\/]/)[0] === "bron" },
+  // Ook bij Space blijft het lesgeluid buiten de app; js/lessons.js speelt het van space.adepti-academy.nl.
+  { id: "space",   from: "space-academy",      skip: (rel) => rel.split(/[\\/]/)[0] === "bron" || /^content[\\/]lessons[\\/]audio([\\/]|$)/.test(rel) },
   // Spectrum, het kaartspel (hub-tegel op index.html). Alleen wat het spel draait:
   // geen tests, geen bouwscripts en geen bron-JSON — alles zit in data/spectrum-data.js.
   { id: "spectrum", from: path.join("Adepti", "games", "spectrum"), skip: SPECTRUM_SKIP },
